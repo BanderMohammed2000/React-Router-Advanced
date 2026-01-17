@@ -25,7 +25,9 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import RootLayout from "./pages/Root";
 import HomePage from "./pages/Home";
 import EventsPage, { loader as eventLoader } from "./pages/Events";
-import EventDetailPage from "./pages/EventDetail";
+import EventDetailPage, {
+  loader as eventDetailLoader,
+} from "./pages/EventDetail";
 import NewEventPage from "./pages/NewEvent";
 import EditEventPage from "./pages/EditEvent";
 import EventsRootLayout from "./pages/EventsRoot";
@@ -49,7 +51,11 @@ const router = createBrowserRouter([
             // ايضاً راح يتم توفير البيانات لمكونات الابناء لهذا المكون
             loader: eventLoader,
           },
-          { path: ":eventId", element: <EventDetailPage /> },
+          {
+            path: ":eventId",
+            element: <EventDetailPage />,
+            loader: eventDetailLoader,
+          },
           { path: "new", element: <NewEventPage /> },
           { path: ":eventId/edit", element: <EditEventPage /> },
         ],
