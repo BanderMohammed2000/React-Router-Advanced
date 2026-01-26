@@ -1,24 +1,30 @@
-// لجلب البيانات التي يتم ارجاعها من الدالة loader
-import { useLoaderData } from "react-router-dom";
+// نسخدمه لإظهار شيء بديل اثناء انتظارنا للبيانات
+import { Suspense } from "react";
+
+// useLoaderData: لجلب البيانات التي يتم ارجاعها من الدالة loader
+import { useLoaderData, Await } from "react-router-dom";
 
 import EventsList from "../components/EventsList";
 
 function EventsPage() {
-  const data = useLoaderData();
+  const { events } = useLoaderData();
 
   // if (data.isError) {
   //   return <p>{data.message}</p>;
   // }
 
-  const events = data.events;
-  return <EventsList events={events} />;
+  return (
+    <Suspense fallback={<p style={{ textAlign: "center" }}>Loading...</p>}>
+      <Await resolve={events}>
+        {(loadedEvents) => <EventsList events={loadedEvents} />}
+      </Await>
+    </Suspense>
+  );
 }
 
 export default EventsPage;
 
-// ملاحظة مهمة: لايمكننا استخدام اي من hooks بداخل loader بسبب ان loader ليست مكوناً من مكونات رياكت
-// ماعادا ذلك يمكننا استخدام اي شيء بداخل loader
-export async function loader() {
+async function loadEvents() {
   const response = await fetch("http://localhost:8080/events");
 
   if (!response.ok) {
@@ -31,6 +37,15 @@ export async function loader() {
     // json: تعمل نفس الكائن Response وتختصر علينا لكتابة اكواد اقل
     // throw json({ message: "Could not fetch events." }, { status: 500 });
   } else {
-    return response;
+    const resData = await response.json();
+    return resData.events;
   }
+}
+
+// ملاحظة مهمة: لايمكننا استخدام اي من hooks بداخل loader بسبب ان loader ليست مكوناً من مكونات رياكت
+// ماعادا ذلك يمكننا استخدام اي شيء بداخل loader
+export async function loader() {
+  return {
+    events: loadEvents(),
+  };
 }
